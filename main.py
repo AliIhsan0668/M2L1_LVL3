@@ -64,5 +64,27 @@ async def attack(ctx):
     else:
         await ctx.send("Saldırmak istediğiniz kullanıcıyı etiketleyerek belirtin.")  # Saldırmak için kullanıcıyı etiketleyerek belirtmesini isteriz
 
+@bot.command()
+async def info(ctx):
+    user_id = ctx.author.name  # veya ctx.author.id kullanıyorsan ona göre değiştir
+    if ctx.author.name in Pokemon.pokemons:
+        pok = Pokemon.pokemons[ctx.author.name]
+        await pok.load_data()  # Güncel verileri yükle
+        info_text = await pok.info()
+
+        image_url = await pok.show_img()
+        if image_url:
+            embed = discord.Embed(title=f"{pok.name.upper()}")
+            embed.set_image(url=image_url)
+            embed.add_field(name="Boy", value=f"{pok.height / 10:.1f} m", inline=True)
+            embed.add_field(name="Kilo", value=f"{pok.weight / 10:.1f} kg", inline=True)
+            embed.add_field(name="Can", value=str(pok.hp), inline=True)
+            embed.add_field(name="Güç", value=f"{pok.power}", inline=True)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(info_text)
+    else:
+        await ctx.send("Henüz bir Pokémon'un yok. `!go` komutuyla yakalayabilirsin!")
+
 # Botun çalıştırılması
 bot.run(token)
